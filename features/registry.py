@@ -190,15 +190,16 @@ not a string path." % (name,))
         ))
 
         # Add a staticmap generic link
-        export_png = getattr(self._options, 'export_png', True)
-        if export_png:
+        # export_png = getattr(self._options, 'export_png', True)
+        # RDH - the above code will always trigger unless mp-drawing module explicitly set to False.
+        if getattr(self._options, 'export_png', False):
             # TODO: Bring in the staticmap module
             logger.warning("Uncomment the following code")
-#             self.links.insert(0, alternate('PNG Image',
-#                 'staticmap.views.staticmap_link',
-#                 select='multiple single',
-#                 method='GET',
-#             ))
+            # self.links.insert(0, alternate('PNG Image',
+            #     'staticmap.views.staticmap_link',
+            #     select='multiple single',
+            #     method='GET',
+            # ))
 
         # Add a geojson generic link
         export_geojson = getattr(self._options, 'export_geojson', True)
