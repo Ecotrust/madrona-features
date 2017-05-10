@@ -5,12 +5,16 @@ from features.registry import enable_sharing
 
 
 class Command(BaseCommand):
-    help = "Configures the permissions to allow sharing between groups"
-    args = '[Group names to grant sharing permissions to ...]'
 
-    option_list = BaseCommand.option_list + (
-        make_option('-a', '--all', action='store_true', dest='all',
-            help="Enable sharing for ALL current groups"),
+    #RDH Upgrade for django 1.10
+    # see https://docs.djangoproject.com/en/1.11/howto/custom-management-commands/#accepting-optional-arguments
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-a',
+            '--all',
+            action='store_true',
+            dest='all',
+            help="Enable sharing for ALL current groups",
         )
 
     def handle(self, *groupnames, **options):
