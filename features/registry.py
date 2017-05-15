@@ -364,18 +364,14 @@ not a string path." % (name,))
         try:
             klass = get_class(self.form)
         except Exception as e:
-            raise (FeatureConfigurationError(
+            raise FeatureConfigurationError(
                 "Feature class %s is not configured with a valid form class. \
-Could not import %s.\n%s" % (self._model.__name__, self.form, e)),
-                   None,
-                sys.exc_info()[2])
+Could not import %s.\n%s" % (self._model.__name__, self.form, e))
 
         if not issubclass(klass, FeatureForm):
-            raise (FeatureConfigurationError(
+            raise FeatureConfigurationError(
                 "Feature class %s's form is not a subclass of \
-features.forms.FeatureForm." % (self._model.__name__, )),
-                   None,
-                   sys.exc_info()[2])
+features.forms.FeatureForm." % (self._model.__name__, ))
 
         return klass
 
