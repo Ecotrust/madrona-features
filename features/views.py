@@ -279,7 +279,7 @@ def create_form(request, model, action=None):
     form_class = config.get_form_class()
     if action is None:
         raise Exception('create_form view is not configured properly.')
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated() and not hasattr(settings, 'ALLOW_FEATURE_FORMS') and not settings.ALLOW_FEATURE_FORMS:
         return HttpResponse('You must be logged in.', status=401)
     title = 'New %s' % (config.verbose_name)
     user = request.user
