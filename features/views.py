@@ -447,14 +447,23 @@ def resource(request, model=None, uid=None):
 
         t = config.get_show_template()
         context = config.show_context
+        ### RDH 12/8/2017 - for scenarios requests, this seems to want t.template, not t itself.
+        # Since I can't test more than scenarios right now, I'll just let it try both.
+        try:
+            template_name = t.name
+        except:
+            template_name = t.template.name
         context.update({
             'instance': instance,
             'MEDIA_URL': settings.MEDIA_URL,
             'is_ajax': request.is_ajax(),
-            'template': t.name,
+            'template': template_name,
         })
 
-        return HttpResponse(t.render(RequestContext(request, context)))
+        try:
+            return HttpResponse(t.render(RequestContext(request, context)))
+        except:
+            return HttpResponse(t.template.render(RequestContext(request, context)))
     elif request.method == 'POST':
         return update(request, model, uid)
 
