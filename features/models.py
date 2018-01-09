@@ -19,6 +19,13 @@ logger = logging.getLogger('features.models')
 GEOMETRY_CLIENT_SRID = settings.GEOMETRY_CLIENT_SRID
 GEOMETRY_DB_SRID = settings.GEOMETRY_DB_SRID
 
+# RDH 1/9/2017: We don't use the built-in Geo Widget - pull out conflicting OL code.
+import django.contrib.gis.forms.widgets
+django.contrib.gis.forms.widgets.OpenLayersWidget.Media.js = ()
+django.contrib.gis.forms.widgets.OpenLayersWidget.Media.css = {
+    'all': ()
+}
+
 class Feature(models.Model):
     """Model used for representing user-generated features
 
