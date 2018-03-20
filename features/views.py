@@ -97,6 +97,16 @@ def get_object_for_viewing(request, uid, target_klass=None):
     else:
         return response
 
+def check_user(request):
+    try:
+        if not request.user.is_authenticated and settings.ALLOW_ANONYMOUS_DRAW and settings.ANONYMOUS_USER_PK:
+            from django.contrib.auth.models import User
+            anon_user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
+            request.user = anon_user
+    except:
+        pass
+    return request
+
 # RESTful Generic Views
 
 def handle_link(request, uids, link=None):
@@ -118,6 +128,7 @@ def handle_link(request, uids, link=None):
     400: requested for feature classes not supported by this view
     5xx: server error
     """
+    request = check_user(request)
     if link is None:
         raise Exception('handle_link configured without link kwarg!')
     uids = uids.split(',')
@@ -469,6 +480,7 @@ def resource(request, model=None, uid=None):
 
 @csrf_exempt
 def form_resources(request, model=None, uid=None):
+    request = check_user(request)
     if model is None:
         return HttpResponse('Model not specified in feature urls', status=500)
     if request.method == 'POST':
