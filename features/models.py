@@ -346,14 +346,14 @@ class SpatialFeature(Feature):
 
         return asKml(self.geometry_final, uid=self.uid)
 
-#     @classmethod
-#     def mapnik_style(self):
-#         """
-#         Mapnik style object containing rules for symbolizing features in staticmap
-#         """
-#         return None
-#         style = mapnik.Style()
-#         return style
+    # @classmethod
+    # def mapnik_style(self):
+    #     """
+    #     Mapnik style object containing rules for symbolizing features in staticmap
+    #     """
+    #     return None
+    #     style = mapnik.Style()
+    #     return style
 
     @property
     def kml(self):
@@ -543,18 +543,18 @@ class PolygonFeature(SpatialFeature):
         geom = self.geometry_final.point_on_surface.transform(GEOMETRY_CLIENT_SRID, clone=True)
         return geom.kml
 
-#     @classmethod
-#     def mapnik_style(self):
-#         polygon_style = mapnik.Style()
-#         ps = mapnik.PolygonSymbolizer(mapnik.Color('#ffffff'))
-#         ps.fill_opacity = 0.5
-#         ls = mapnik.LineSymbolizer(mapnik.Color('#555555'),0.75)
-#         ls.stroke_opacity = 0.5
-#         r = mapnik.Rule()
-#         r.symbols.append(ps)
-#         r.symbols.append(ls)
-#         polygon_style.rules.append(r)
-#         return polygon_style
+    # @classmethod
+    # def mapnik_style(self):
+    #     polygon_style = mapnik.Style()
+    #     ps = mapnik.PolygonSymbolizer(mapnik.Color('#ffffff'))
+    #     ps.fill_opacity = 0.5
+    #     ls = mapnik.LineSymbolizer(mapnik.Color('#555555'),0.75)
+    #     ls.stroke_opacity = 0.5
+    #     r = mapnik.Rule()
+    #     r.symbols.append(ps)
+    #     r.symbols.append(ls)
+    #     polygon_style.rules.append(r)
+    #     return polygon_style
 
     class Meta(Feature.Meta):
         abstract = True
@@ -573,18 +573,18 @@ class MultiPolygonFeature(SpatialFeature):
         geom = self.geometry_final.point_on_surface.transform(GEOMETRY_CLIENT_SRID, clone=True)
         return geom.kml
 
-#     @classmethod
-#     def mapnik_style(self):
-#         polygon_style = mapnik.Style()
-#         ps = mapnik.PolygonSymbolizer(mapnik.Color('#ffffff'))
-#         ps.fill_opacity = 0.5
-#         ls = mapnik.LineSymbolizer(mapnik.Color('#555555'),0.75)
-#         ls.stroke_opacity = 0.5
-#         r = mapnik.Rule()
-#         r.symbols.append(ps)
-#         r.symbols.append(ls)
-#         polygon_style.rules.append(r)
-#         return polygon_style
+    # @classmethod
+    # def mapnik_style(self):
+    #     polygon_style = mapnik.Style()
+    #     ps = mapnik.PolygonSymbolizer(mapnik.Color('#ffffff'))
+    #     ps.fill_opacity = 0.5
+    #     ls = mapnik.LineSymbolizer(mapnik.Color('#555555'),0.75)
+    #     ls.stroke_opacity = 0.5
+    #     r = mapnik.Rule()
+    #     r.symbols.append(ps)
+    #     r.symbols.append(ls)
+    #     polygon_style.rules.append(r)
+    #     return polygon_style
 
     class Meta(Feature.Meta):
         abstract = True
@@ -617,15 +617,15 @@ class LineFeature(SpatialFeature):
     geometry_final = models.LineStringField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Final LineString Geometry")
 
-#     @classmethod
-#     def mapnik_style(self):
-#         line_style = mapnik.Style()
-#         ls = mapnik.LineSymbolizer(mapnik.Color('#444444'),1.5)
-#         ls.stroke_opacity = 0.5
-#         r = mapnik.Rule()
-#         r.symbols.append(ls)
-#         line_style.rules.append(r)
-#         return line_style
+    # @classmethod
+    # def mapnik_style(self):
+    #     line_style = mapnik.Style()
+    #     ls = mapnik.LineSymbolizer(mapnik.Color('#444444'),1.5)
+    #     ls.stroke_opacity = 0.5
+    #     r = mapnik.Rule()
+    #     r.symbols.append(ls)
+    #     line_style.rules.append(r)
+    #     return line_style
 
     class Meta(Feature.Meta):
         abstract = True
@@ -658,13 +658,13 @@ class PointFeature(SpatialFeature):
     geometry_final = models.PointField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Final Point Geometry")
 
-#     @classmethod
-#     def mapnik_style(self):
-#         point_style = mapnik.Style()
-#         r = mapnik.Rule()
-#         r.symbols.append(mapnik.PointSymbolizer())
-#         point_style.rules.append(r)
-#         return point_style
+    # @classmethod
+    # def mapnik_style(self):
+    #     point_style = mapnik.Style()
+    #     r = mapnik.Rule()
+    #     r.symbols.append(mapnik.PointSymbolizer())
+    #     point_style.rules.append(r)
+    #     return point_style
 
     class Meta(Feature.Meta):
         abstract = True

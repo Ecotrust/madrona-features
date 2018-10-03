@@ -276,7 +276,12 @@ def create(request, model, action):
             context = decorate_with_manipulators(context, form_class)
             c = RequestContext(request, context)
             t = loader.get_template(config.form_template)
-            return HttpResponse(t.render(c), status=400)
+            # In Django 1.8 template rendering started acceping dicts
+            # In Django 1.10 it stopped accepting RequestContext
+            try:
+                return HttpResponse(t.render(c), status=400)
+            except TypeError:
+                return HttpResponse(t.render(context), status=400)
     else:
         return HttpResponse('Invalid http method', status=405)
 
