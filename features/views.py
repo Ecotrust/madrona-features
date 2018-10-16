@@ -423,7 +423,12 @@ def update(request, model, uid):
             context = decorate_with_manipulators(context, form_class)
             c = RequestContext(request, context)
             t = loader.get_template(config.form_template)
-            return HttpResponse(t.render(c), status=400)
+            try:
+                return HttpResponse(t.render(c), status=400)
+            except TypeError:
+                return HttpResponse(t.render(context), status=400)
+
+
     else:
         return HttpResponse("""Invalid http method.
         Yes we know, PUT is supposed to be used rather than POST,
