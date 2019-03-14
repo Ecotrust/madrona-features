@@ -399,7 +399,7 @@ class SpatialFeature(Feature):
                 <color>ffffffff</color>
                 <colorMode>normal</colorMode>
                 <scale>0.9</scale>
-                <Icon> <href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href> </Icon>
+                <Icon> <href>https://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href> </Icon>
             </IconStyle>
             <BalloonStyle>
                 <bgColor>ffeeeeee</bgColor>
