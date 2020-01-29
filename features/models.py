@@ -2,7 +2,6 @@ from django.contrib.gis.db import models
 from django.contrib.auth.models import User, Group
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.http import HttpResponse
 from django.utils.html import escape
 from .managers import ShareableGeoManager
@@ -12,6 +11,7 @@ from manipulators.geometry import ensure_clean
 import logging
 from manipulators.manipulators import manipulatorsDict, NullManipulator
 import re
+from django.urls import reverse
 # import mapnik
 
 logger = logging.getLogger('features.models')
@@ -41,7 +41,12 @@ class Feature(models.Model):
         ``date_modified``       When it was last updated.
         ======================  ==============================================
     """
-    user = models.ForeignKey(User, related_name="%(app_label)s_%(class)s_related")
+
+    from django.contrib.contenttypes.fields import GenericForeignKey
+
+    user = models.ForeignKey(User,
+            related_name="%(app_label)s_%(class)s_related",
+            on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Name", max_length=255)
     date_created = models.DateTimeField(auto_now_add=True,
             verbose_name="Date Created")
@@ -51,7 +56,8 @@ class Feature(models.Model):
             verbose_name="Share with the following groups",
             related_name="%(app_label)s_%(class)s_related")
     content_type = models.ForeignKey(ContentType, blank=True, null=True,
-            related_name="%(app_label)s_%(class)s_related")
+            related_name="%(app_label)s_%(class)s_related",
+            on_delete=models.SET_NULL)
     object_id = models.PositiveIntegerField(blank=True,null=True)
     collection = GenericForeignKey('content_type', 'object_id')
 
@@ -76,11 +82,12 @@ class Feature(models.Model):
         if form is not None:
             form.save_m2m()
 
-    @models.permalink
+    # django 2.0 compatibility update - attempting this: https://docs.djangoproject.com/en/2.1/releases/1.11/#deprecated-features-1-11
+    #       -- RDH 7/8/2019
+    # @models.permalink
     def get_absolute_url(self):
-        return ('%s_resource' % (self.get_options().slug, ), (), {
-            'uid': self.uid
-        })
+        # return ('%s_resource' % (self.get_options().slug, ), (), {'uid': self.uid})
+        return reverse('%s_resource' % (self.get_options().slug, ), args=[(), {'uid': self.uid}])
 
     @classmethod
     def get_options(klass):

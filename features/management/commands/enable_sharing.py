@@ -26,7 +26,7 @@ class Command(BaseCommand):
             gs = Group.objects.all()
             for g in gs:
                 enable_sharing(g)
-                print(" [DONE]", g.name)
+                print(" [DONE]: %s" % g.name)
             return
 
         if len(groupnames) > 0:
@@ -36,10 +36,10 @@ class Command(BaseCommand):
                 try:
                     g = Group.objects.get(name=gname)
                     enable_sharing(g)
-                    print(" [DONE]", gname)
+                    print(" [DONE]: %s" % g.name)
                 except Exception as e:
-                    print(" [FAILED]", gname)
-                    print("  ",e)
+                    print(" [FAILED]: %s" % g.name)
+                    print(" %s" %e)
             return
 
         enable_sharing()

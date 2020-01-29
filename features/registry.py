@@ -2,7 +2,7 @@ import logging
 from django.template.defaultfilters import slugify
 from django.template import loader, TemplateDoesNotExist
 from features.forms import FeatureForm
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, class_prepared
 from django.dispatch import receiver
@@ -231,7 +231,8 @@ not a string path." % (name,))
                 # chain (too bad we're not Py3k)
                 t, v, tb = sys.exc_info()
                 s = "Error trying to import module %s" % m
-                raise FeatureConfigurationError(s, t, v, tb)
+                # raise FeatureConfigurationError(s, t, v, tb)
+                raise FeatureConfigurationError(s)
 
             # Test that manipulator is compatible with this Feature Class
             geom_field = self._model.geometry_final._field.__class__.__name__
@@ -364,14 +365,18 @@ not a string path." % (name,))
         try:
             klass = get_class(self.form)
         except Exception as e:
-            raise FeatureConfigurationError(
+            raise (FeatureConfigurationError(
                 "Feature class %s is not configured with a valid form class. \
-Could not import %s.\n%s" % (self._model.__name__, self.form, e))
+Could not import %s.\n%s" % (self._model.__name__, self.form, e)),
+                   None,
+                sys.exc_info()[2])
 
         if not issubclass(klass, FeatureForm):
             raise FeatureConfigurationError(
                 "Feature class %s's form is not a subclass of \
-features.forms.FeatureForm." % (self._model.__name__, ))
+features.forms.FeatureForm." % (self._model.__name__, )),
+                   None,
+                   sys.exc_info()[2])
 
         return klass
 
