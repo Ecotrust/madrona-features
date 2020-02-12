@@ -372,9 +372,8 @@ Could not import %s.\n%s" % (self._model.__name__, self.form, e)),
                 sys.exc_info()[2])
 
         if not issubclass(klass, FeatureForm):
-            raise FeatureConfigurationError(
-                "Feature class %s's form is not a subclass of \
-features.forms.FeatureForm." % (self._model.__name__, )),
+            raise (FeatureConfigurationError(
+                "Feature class %s's form is not a subclass of features.forms.FeatureForm." % (self._model.__name__, )),
                    None,
                    sys.exc_info()[2])
 
