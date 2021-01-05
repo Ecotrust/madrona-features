@@ -2,4 +2,4 @@
 #-e git+git@bitbucket.org:point97/p97-nursery.git@c4699ba40de6e90972c6c683449f0c7caa29ce08#egg=nursery-master
 
 -e /usr/local/apps/marineplanner-core/apps/madrona-manipulators
--e /usr/local/apps/marineplanner-core/apps/p97-nursury
+-e /usr/local/apps/marineplanner-core/apps/p97-nursery
