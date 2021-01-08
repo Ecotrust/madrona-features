@@ -11,7 +11,10 @@ from manipulators.geometry import ensure_clean
 import logging
 from manipulators.manipulators import manipulatorsDict, NullManipulator
 import re
-from django.urls import reverse
+try:
+    from django.urls import reverse
+except (ModuleNotFoundError, ImportError):
+    from django.core.urlresolvers import reverse
 # import mapnik
 
 logger = logging.getLogger('features.models')
@@ -87,7 +90,7 @@ class Feature(models.Model):
     # @models.permalink
     def get_absolute_url(self):
         # return ('%s_resource' % (self.get_options().slug, ), (), {'uid': self.uid})
-        return reverse('%s_resource' % (self.get_options().slug, ), args=[(), {'uid': self.uid}])
+        return reverse('%s_resource' % (self.get_options().slug, ), kwargs={'uid': self.uid})
 
     @classmethod
     def get_options(klass):
@@ -245,7 +248,7 @@ class Feature(models.Model):
         returns : Viewable(boolean), HttpResponse
         """
         # First, is the user logged in?
-        if user.is_anonymous() or not user.is_authenticated():
+        if user.is_anonymous or not user.is_authenticated:
             try:
                 obj = self.__class__.objects.shared_with_user(user).get(pk=self.pk)
                 return True, HttpResponse("Object shared with public, viewable by anonymous user", status=202)

@@ -2,7 +2,10 @@ import logging
 from django.template.defaultfilters import slugify
 from django.template import loader, TemplateDoesNotExist
 from features.forms import FeatureForm
-from django.urls import reverse
+try:
+    from django.urls import reverse
+except (ModuleNotFoundError, ImportError):
+    from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, class_prepared
 from django.dispatch import receiver
@@ -231,8 +234,12 @@ not a string path." % (name,))
                 # chain (too bad we're not Py3k)
                 t, v, tb = sys.exc_info()
                 s = "Error trying to import module %s" % m
-                # raise FeatureConfigurationError(s, t, v, tb)
-                raise FeatureConfigurationError(s)
+                # raise FeatureConfigurationError, (s, t, v), tb
+                e = FeatureConfigurationError(s)
+                e.__type__ = t
+                e.__value__ = v
+                e.__traceback__ = tb
+                raise e
 
             # Test that manipulator is compatible with this Feature Class
             geom_field = self._model.geometry_final._field.__class__.__name__
@@ -416,7 +423,7 @@ Could not import %s.\n%s" % (self._model.__name__, self.form, e)),
         for link in self.links:
             if not link.generic and link.can_user_view(user, is_owner):
                 if link.rel not in link_rels['link-relations'].keys():
-                    if not (user.is_anonymous() and link.rel == 'edit'):
+                    if not (user.is_anonymous and link.rel == 'edit'):
                         link_rels['link-relations'][link.rel] = []
                 link_rels['link-relations'][link.rel].append(link.dict(user,is_owner))
 
@@ -566,7 +573,7 @@ class Link:
             self.models = []
 
         # Make sure title isn't empty
-        if self.title is '':
+        if self.title == '':
             raise FeatureConfigurationError('Link title is empty')
         valid_options = ('single', 'multiple', 'single multiple',
             'multiple single')
@@ -595,7 +602,7 @@ class Link:
         view can handle them
         """
         # Check for instance or instances arguments
-        if self.select is 'single':
+        if self.select == 'single':
             args = view.__code__.co_varnames
             if len(args) < 2 or args[1] != 'instance':
                 raise FeatureConfigurationError('Link "%s" not configured \
@@ -744,7 +751,7 @@ def workspace_json(user, is_owner, models=None):
             workspace['feature-classes'].append(model.get_options().dict(user, is_owner))
         for link in registered_links:
             if link.generic and link.can_user_view(user, is_owner) \
-                    and not (user.is_anonymous() and link.rel == 'edit'):
+                    and not (user.is_anonymous and link.rel == 'edit'):
                 workspace['generic-links'].append(link.dict(user, is_owner))
     else:
         # Workspace doc only reflects specified feature class models
@@ -755,7 +762,7 @@ def workspace_json(user, is_owner, models=None):
             if link.generic and \
                [i for i in args if i in link.models] and \
                link.can_user_view(user, is_owner) and \
-               not (user.is_anonymous() and link.rel == 'edit'):
+               not (user.is_anonymous and link.rel == 'edit'):
                     workspace['generic-links'].append(link.dict(user, is_owner))
     return json.dumps(workspace, indent=2)
 

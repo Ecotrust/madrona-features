@@ -9,7 +9,11 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.gdal import DataSource
-from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
+try:
+    from django.urls import reverse
+except (ModuleNotFoundError, ImportError):
+    from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.template import RequestContext, Context
@@ -56,7 +60,7 @@ def get_object_for_editing(request, uid, target_klass=None):
     except:
         return HttpResponse("Feature not found - %s" % uid, status=404)
 
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return HttpResponse('You must be logged in.', status=401)
     # Check that user owns the object or is staff
     if not request.user.is_staff and request.user != instance.user:
@@ -133,13 +137,13 @@ def handle_link(request, uids, link=None):
         raise Exception('handle_link configured without link kwarg!')
     uids = uids.split(',')
     # check that the number of instances matches the link.select property
-    if len(uids) > 1 and link.select is 'single':
+    if len(uids) > 1 and link.select == 'single':
         # too many
         return HttpResponse(
             'Not Supported Error: Requested %s for multiple instances' % (
             link.title, ), status=400)
     singles = ('single', 'multiple single', 'single multiple')
-    if len(uids) is 1 and link.select not in singles:
+    if len(uids) == 1 and link.select not in singles:
         # not enough
         return HttpResponse(
             'Not Supported Error: Requested %s for single instance' % (
@@ -171,7 +175,7 @@ generic link only supports requests for feature classes %s' % (
                 instance.__class__.__name__,
                 ', '.join([m.__name__ for m in link.models])), status=400)
 
-    if link.select is 'single':
+    if link.select == 'single':
         return link.view(request, instances[0], **link.extra_kwargs)
     else:
         return link.view(request, instances, **link.extra_kwargs)
@@ -234,7 +238,7 @@ def create(request, model, action):
     """
     config = model.get_options()
     form_class = config.get_form_class()
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return HttpResponse('You must be logged in.', status=401)
     title = 'New %s' % (config.slug, )
     if request.method == 'POST':
@@ -274,14 +278,7 @@ def create(request, model, action):
                 'user': user,
             })
             context = decorate_with_manipulators(context, form_class)
-            c = RequestContext(request, context)
-            t = loader.get_template(config.form_template)
-            # In Django 1.8 template rendering started acceping dicts
-            # In Django 1.10 it stopped accepting RequestContext
-            try:
-                return HttpResponse(t.render(c), status=400)
-            except TypeError:
-                return HttpResponse(t.render(context), status=400)
+            return render(request, config.form_template, context, status=400)
     else:
         return HttpResponse('Invalid http method', status=405)
 
@@ -295,7 +292,7 @@ def create_form(request, model, action=None):
     form_class = config.get_form_class()
     if action is None:
         raise Exception('create_form view is not configured properly.')
-    if not request.user.is_authenticated() and not hasattr(settings, 'ALLOW_FEATURE_FORMS') and not settings.ALLOW_FEATURE_FORMS:
+    if not request.user.is_authenticated and not hasattr(settings, 'ALLOW_FEATURE_FORMS') and not settings.ALLOW_FEATURE_FORMS:
         return HttpResponse('You must be logged in.', status=401)
     title = 'New %s' % (config.verbose_name)
     user = request.user
@@ -421,14 +418,7 @@ def update(request, model, uid):
                 'is_collection': issubclass(model, FeatureCollection),
             })
             context = decorate_with_manipulators(context, form_class)
-            c = RequestContext(request, context)
-            t = loader.get_template(config.form_template)
-            try:
-                return HttpResponse(t.render(c), status=400)
-            except TypeError:
-                return HttpResponse(t.render(context), status=400)
-
-
+            return render(request, config.form_template, context, status=400)
     else:
         return HttpResponse("""Invalid http method.
         Yes we know, PUT is supposed to be used rather than POST,
@@ -478,13 +468,13 @@ def resource(request, model=None, uid=None):
             'instance': instance,
             'MEDIA_URL': settings.MEDIA_URL,
             'is_ajax': request.is_ajax(),
-            'template': template_name,
+            'template': t.template.name,
         })
 
         try:
-            return HttpResponse(t.render(RequestContext(request, context)))
-        except:
-            return HttpResponse(t.template.render(RequestContext(request, context)))
+            return render(request, t.template.name, context, status=400)
+        except NoReverseMatch as e:
+            return HttpResponse("Unable to complete request", status=400)
     elif request.method == 'POST':
         return update(request, model, uid)
 
@@ -651,7 +641,7 @@ def kml_core(request, instances, kmz):
     styles = []
 
     t = get_template('kmlapp/myshapes.kml')
-    context = Context({
+    context = {
                 'user': user,
                 'features': features,
                 'collections': collections,
@@ -662,8 +652,8 @@ def kml_core(request, instances, kmz):
                 'shareuser': None,
                 'sharegroup': None,
                 'feature_id': None,
-                })
-    kml = t.render(context)
+                }
+    kml = render(request, t.template.name, context)
     response = HttpResponse()
     filename = '_'.join([slugify(i.name) for i in instances])
 
@@ -774,7 +764,7 @@ def manage_collection(request, action, uids, collection_model, collection_uid):
 def workspace(request, username, is_owner):
     user = request.user
     if request.method == 'GET':
-        if user.is_anonymous() and is_owner:
+        if user.is_anonymous and is_owner:
             return HttpResponse("Anonymous user can't access workspace as owner", status=403)
         res = HttpResponse(workspace_json(user, is_owner), status=200)
         res['Content-Type'] = mimetypes.JSON
@@ -848,12 +838,7 @@ def to_response(status=200, select=None, show=None, parent=None,
     return response
 
 def to_csv(features):
-    try:
-        instance_type = unicode
-    except Exception as e:
-        # py2 unicode is py3 str, py2 str is py3 bytes
-        instance_type = str
-    if not features or isinstance(features, instance_type):
+    if not features or isinstance(features, str):
         return features
     elif isinstance(features, Feature):
         return features.uid
