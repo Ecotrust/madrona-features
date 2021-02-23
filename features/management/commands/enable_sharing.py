@@ -36,7 +36,6 @@ class Command(BaseCommand):
                 try:
                     g = Group.objects.get(name=gname)
                     enable_sharing(g)
-<<<<<<< HEAD
                     print(" [DONE]: %s" % g.name)
                 except Exception as e:
                     print(" [FAILED]: %s" % g.name)
@@ -45,22 +44,12 @@ class Command(BaseCommand):
 
         enable_sharing()
         print("""
-=======
-                    print(" [DONE]", gname)
-                except Exception as e:
-                    print(" [FAILED]", gname)
-                    print("  ",e)
-            return
+        The site is now configured to allow sharing.
+        For a group to share features, you must grant this permission explictly to group:
 
-        enable_sharing()
-        print(""")
->>>>>>> origin/master
-The site is now configured to allow sharing.
-For a group to share features, you must grant this permission explictly to group:
+            $ python manage.py enable_sharing GroupName "Group Name with Spaces"
 
-    $ python manage.py enable_sharing GroupName "Group Name with Spaces"
+        OR to grant sharing permissions to all groups:
 
-OR to grant sharing permissions to all groups:
-
-    $ python manage.py enable_sharing --all
-""")
+            $ python manage.py enable_sharing --all
+        """)
