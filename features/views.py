@@ -122,17 +122,17 @@ def handle_link(request, uids, link=None):
     400: requested for feature classes not supported by this view
     5xx: server error
     """
-    if link is None:
+    if link == None:
         raise Exception('handle_link configured without link kwarg!')
     uids = uids.split(',')
     # check that the number of instances matches the link.select property
-    if len(uids) > 1 and link.select is 'single':
+    if len(uids) > 1 and link.select == 'single':
         # too many
         return HttpResponse(
             'Not Supported Error: Requested %s for multiple instances' % (
             link.title, ), status=400)
     singles = ('single', 'multiple single', 'single multiple')
-    if len(uids) is 1 and link.select not in singles:
+    if len(uids) == 1 and link.select not in singles:
         # not enough
         return HttpResponse(
             'Not Supported Error: Requested %s for single instance' % (
@@ -144,7 +144,7 @@ def handle_link(request, uids, link=None):
                 resp = HttpResponse('Invalid Method', status=405)
                 resp['Allow'] = 'POST'
                 return resp
-            if link.edits_original is False:
+            if link.edits_original == False:
                 # users who can view the object can then make copies
                 inst = get_object_for_viewing(request, uid)
             else:
@@ -164,7 +164,7 @@ generic link only supports requests for feature classes %s' % (
                 instance.__class__.__name__,
                 ', '.join([m.__name__ for m in link.models])), status=400)
 
-    if link.select is 'single':
+    if link.select == 'single':
         return link.view(request, instances[0], **link.extra_kwargs)
     else:
         return link.view(request, instances, **link.extra_kwargs)
@@ -182,10 +182,10 @@ def delete(request, model=None, uid=None):
     404: resource for deletion could not be found
     5xx: server error
     """
-    if model is None:
+    if model == None:
         return HttpResponse('Model not specified in feature urls', status=500)
     if request.method == 'DELETE':
-        if model is None or uid is None:
+        if model == None or uid == None:
             raise Exception('delete view not configured properly.')
         instance = get_object_for_editing(request, uid, target_klass=model)
         if isinstance(instance, HttpResponse):
@@ -279,7 +279,7 @@ def create_form(request, model, action=None):
     """
     config = model.get_options()
     form_class = config.get_form_class()
-    if action is None:
+    if action == None:
         raise Exception('create_form view is not configured properly.')
     if not request.user.is_authenticated:
         return HttpResponse('You must be logged in.', status=401)
@@ -433,7 +433,7 @@ def resource(request, model=None, uid=None):
 
     Uses madrona.features.views.update and madrona.feature.views.delete
     """
-    if model is None:
+    if model == None:
         return HttpResponse('Model not specified in feature urls', status=500)
     config = model.get_options()
     if request.method == 'DELETE':
@@ -463,15 +463,15 @@ def resource(request, model=None, uid=None):
 
 @csrf_exempt
 def form_resources(request, model=None, uid=None):
-    if model is None:
+    if model == None:
         return HttpResponse('Model not specified in feature urls', status=500)
     if request.method == 'POST':
-        if uid is None:
+        if uid == None:
             return create(request, model, request.build_absolute_uri())
         else:
             return HttpResponse('Invalid http method', status=405)
     elif request.method == 'GET':
-        if uid is None:
+        if uid == None:
             # Get the create form
             return create_form(
                 request,
@@ -659,9 +659,9 @@ def share_form(request,model=None, uid=None):
         GET:    Provide an html form for selecting groups
                 to which the feature will be shared.
     """
-    if model is None:
+    if model == None:
         return HttpResponse('Model not specified in feature urls', status=500)
-    if uid is None:
+    if uid == None:
         return HttpResponse('Instance UID not specified', status=500)
 
     obj = get_object_for_editing(request, uid, target_klass=model)
@@ -902,7 +902,7 @@ def geojson_link(request, instances):
         except AttributeError:
             pass
 
-        if gj is None:
+        if gj == None:
             props = get_properties_json(i)
             if issubclass(i.__class__, FeatureCollection):
                 if strategy == 'nest_feature_set':
@@ -930,7 +930,7 @@ def geojson_link(request, instances):
                     geom = 'null'
                 gj = get_feature_json(geom, json.dumps(props))
 
-        if gj is not None:
+        if gj != None:
             feature_jsons.append(gj)
 
     geojson = """{

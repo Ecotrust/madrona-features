@@ -569,11 +569,11 @@ class Link:
         Default is None; i.e. All users have link access regardless of group membership
         """
 
-        if self.models is None:
+        if self.models == None:
             self.models = []
 
         # Make sure title isn't empty
-        if self.title is '':
+        if self.title == '':
             raise FeatureConfigurationError('Link title is empty')
         valid_options = ('single', 'multiple', 'single multiple',
             'multiple single')
@@ -583,7 +583,7 @@ class Link:
                 'Link specified with invalid select option "%s"' % (
                     self.select, ))
         # Create slug from the title unless a custom slug is specified
-        if self.slug is None:
+        if self.slug == None:
             self.slug = slugify(title)
         # Make sure the view has the right signature
         self._validate_view(self.view)
@@ -602,7 +602,7 @@ class Link:
         view can handle them
         """
         # Check for instance or instances arguments
-        if self.select is 'single':
+        if self.select == 'single':
             args = view.__code__.co_varnames
             if len(args) < 2 or args[1] != 'instance':
                 raise FeatureConfigurationError('Link "%s" not configured \
