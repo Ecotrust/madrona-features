@@ -222,7 +222,7 @@ class Feature(models.Model):
         for group in groups:
             assert isinstance(group, Group)
             # Check that the group to be shared with has appropos permissions
-            assert group in self.user.groups.all()
+            assert group in self.user.groups.all() or group in Group.objects.filter(name__in=settings.SHARING_TO_PUBLIC_GROUPS)
             try:
                 gp = group.permissions.get(codename='can_share_features')
             except:
@@ -240,7 +240,12 @@ class Feature(models.Model):
         Either needs to own it or have it shared with them.
         returns : Viewable(boolean), HttpResponse
         """
-        # First, is the user logged in?
+        # First, is the feature publicly shared?
+        public_group_associations = self.sharing_groups.filter(name__in=settings.SHARING_TO_PUBLIC_GROUPS)
+        if public_group_associations.count() > 0:
+            return True, HttpResponse("Object shared with public, viewable by anonymous user", status=202)
+
+        # Second, is the user logged in?
         if user.is_anonymous or not user.is_authenticated:
             try:
                 obj = self.__class__.objects.shared_with_user(user).get(pk=self.pk)
