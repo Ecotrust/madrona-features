@@ -213,6 +213,13 @@ def multi_delete(request, instances):
                 status=405)
 
 
+# RDH 2024-04-10: Django 4.2 no longer supports 'request.is_ajax()'. 
+# According to StackOverflow user JPG, this can be used to replace that logic
+# https://stackoverflow.com/a/70419609/706797
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+
 def create(request, model, action):
     """
     When calling, provide the request object and a ModelForm class
@@ -260,7 +267,7 @@ def create(request, model, action):
                 'form': form,
                 'title': title,
                 'action': action,
-                'is_ajax': request.is_ajax(),
+                'is_ajax': is_ajax(request),
                 'MEDIA_URL': settings.MEDIA_URL,
                 'is_spatial': issubclass(model, SpatialFeature),
                 'is_collection': issubclass(model, FeatureCollection),
@@ -291,7 +298,7 @@ def create_form(request, model, action=None):
             'form': form_class(label_suffix=''),
             'title': title,
             'action': action,
-            'is_ajax': request.is_ajax(),
+            'is_ajax': is_ajax(request),
             'MEDIA_URL': settings.MEDIA_URL,
             'is_spatial': issubclass(model, SpatialFeature),
             'is_collection': issubclass(model, FeatureCollection),
@@ -330,7 +337,7 @@ def update_form(request, model, uid):
             'form': form,
             'title': "Edit '%s'" % (instance.name, ),
             'action': instance.get_absolute_url(),
-            'is_ajax': request.is_ajax(),
+            'is_ajax': is_ajax(request),
             'MEDIA_URL': settings.MEDIA_URL,
             'is_spatial': issubclass(model, SpatialFeature),
             'is_collection': issubclass(model, FeatureCollection),
@@ -401,7 +408,7 @@ def update(request, model, uid):
                 'form': form,
                 'title': "Edit '%s'" % (instance.name, ),
                 'action': instance.get_absolute_url(),
-                'is_ajax': request.is_ajax(),
+                'is_ajax': is_ajax(request),
                 'MEDIA_URL': settings.MEDIA_URL,
                 'is_spatial': issubclass(model, SpatialFeature),
                 'is_collection': issubclass(model, FeatureCollection),
@@ -450,7 +457,7 @@ def resource(request, model=None, uid=None):
         context.update({
             'instance': instance,
             'MEDIA_URL': settings.MEDIA_URL,
-            'is_ajax': request.is_ajax(),
+            'is_ajax': is_ajax(request),
             'template': t.template.name,
         })
 
