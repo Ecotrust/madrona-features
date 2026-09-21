@@ -193,10 +193,10 @@ not a string path." % (name,))
         ))
 
         # Add a staticmap generic link
-        export_png = getattr(self._options, 'export_png', True)
+        export_png = getattr(self._options, 'export_png', False)
         if export_png:
             # TODO: Bring in the staticmap module
-            logger.warning("Uncomment the following code")
+            logger.warning("Features.export_png = True; Uncomment the following code")
 #             self.links.insert(0, alternate('PNG Image',
 #                 'staticmap.views.staticmap_link',
 #                 select='multiple single',
